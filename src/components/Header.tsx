@@ -5,8 +5,8 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 export const Header = () => {
   return (
     <View style={styles.container}>
-      <Text>faiza</Text>
-      <Icon name="account-circle" size={30} />
+      <Text style={{color: '#FFF'}}>faiza</Text>
+      <Icon name="account-circle" size={30} color={'#ffff'} />
     </View>
   );
 };
@@ -20,5 +20,6 @@ const styles = StyleSheet.create({
     borderColor: '#758283',
     borderRadius: 1,
     borderWidth: 1,
+    backgroundColor: '#1C8D73',
   },
 });

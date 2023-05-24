@@ -8,14 +8,12 @@ import {
 } from 'react-native';
 import React, {useRef, useState} from 'react';
 import {Header} from '../components/Header';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {BottomSheet} from '../components/BottomSheet';
 import {CameraOptions, launchImageLibrary} from 'react-native-image-picker';
 const HomeScreen = () => {
   const actionSheetRef = useRef();
-  const [image, setImage] = useState('');
-
-  const [filePath, setFilePath] = useState({});
+  const [imagePaths, setImagePaths] = useState<string[]>([]);
   const Arr = [
     {
       heading: 'Add from Gallery.',
@@ -23,7 +21,7 @@ const HomeScreen = () => {
       color: '#242B2E',
     },
     {heading: 'Add from Facbook.', IconName: 'facebook', color: '#3944F7'},
-    {heading: 'Add from Instagram.', IconName: 'insatagram', color: '#6A1B4D'},
+    {heading: 'Add from Instagram.', IconName: 'instagram', color: '#6A1B4D'},
     {
       heading: 'Add from  Google Photos.',
       IconName: 'google-drive',
@@ -39,7 +37,28 @@ const HomeScreen = () => {
     };
     let gallery = await launchImageLibrary(options);
     const imagePath = gallery?.assets?.[0]?.uri ?? '';
-    setImage(imagePath);
+    setImagePaths(prevPaths => [...prevPaths, imagePath]);
+  };
+  const handlePress = index => {
+    switch (index) {
+      case 0:
+        chooseFile();
+        break;
+      case 1:
+        console.log('Pressed: Add from Facebook');
+        // Perform action for "Add from Facebook"
+        break;
+      case 2:
+        console.log('Pressed: Add from Instagram');
+        // Perform action for "Add from Instagram"
+        break;
+      case 3:
+        console.log('Pressed: Add from Google Photos');
+        // Perform action for "Add from Google Photos"
+        break;
+      default:
+        break;
+    }
   };
 
   return (
@@ -47,24 +66,38 @@ const HomeScreen = () => {
       <View>
         <Header />
       </View>
-      <View>
-        {image && (
-          <Image source={{uri: image}} style={{width: 200, height: 200}} />
-        )}
+      <View style={styles.imageRow}>
+        {imagePaths.map((path, index) => (
+          <Image
+            key={index}
+            source={{uri: path}}
+            alt={`Image ${index}`}
+            style={styles.imageItem}
+          />
+        ))}
       </View>
-      <View style={styles.memoryView}>
-        <Text>Add your memory </Text>
+      <View
+        style={{
+          position: 'absolute',
+          alignSelf: 'center',
+          bottom: 10,
+          width: '90%',
+        }}>
         <TouchableOpacity
           onPress={() => {
             actionSheetRef?.current?.show();
-          }}>
-          <Icon name="add-a-photo" size={25} />
+          }}
+          style={styles.memoryView}>
+          <Text style={{color: '#ffff'}}>Add your memory</Text>
+          {/* <Icon name="camera-plus" size={25} /> */}
         </TouchableOpacity>
       </View>
       <BottomSheet ref={actionSheetRef} id={'1'}>
-        {Arr.map(item => (
-          <TouchableOpacity style={styles.bottomSheetView} onPress={chooseFile}>
-            <Icon name={item.IconName} size={15} color={item.color} />
+        {Arr.map((item, index) => (
+          <TouchableOpacity
+            style={styles.bottomSheetView}
+            onPress={() => handlePress(index)}>
+            <Icon name={item.IconName} size={20} color={item.color} />
             <Text style={styles.text}>{item.heading}</Text>
           </TouchableOpacity>
         ))}
@@ -80,17 +113,11 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   memoryView: {
-    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    borderWidth: 1,
-    borderColor: '#758283',
-    padding: 5,
+    padding: 10,
     borderRadius: 5,
-    position: 'absolute',
-    bottom: 10,
-    alignSelf: 'center',
-    width: '95%',
+    backgroundColor: '#1C8D73',
+    justifyContent: 'center',
   },
   bottomSheetView: {
     flexDirection: 'row',
@@ -99,9 +126,17 @@ const styles = StyleSheet.create({
   },
   text: {
     marginLeft: 20,
-    fontSize: 11,
-    fontWeight: 'bold',
+    fontSize: 13,
     width: '100%',
+  },
+  imageRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  imageItem: {
+    width: 110,
+    height: 110,
+    margin: 5,
   },
 });
 export default HomeScreen;
