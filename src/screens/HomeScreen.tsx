@@ -11,6 +11,11 @@ import {Header} from '../components/Header';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {BottomSheet} from '../components/BottomSheet';
 import {CameraOptions, launchImageLibrary} from 'react-native-image-picker';
+import {
+  LoginManager,
+  GraphRequest,
+  GraphRequestManager,
+} from 'react-native-fbsdk';
 const HomeScreen = () => {
   const actionSheetRef = useRef();
   const [imagePaths, setImagePaths] = useState<string[]>([]);
@@ -39,12 +44,60 @@ const HomeScreen = () => {
     const imagePath = gallery?.assets?.[0]?.uri ?? '';
     setImagePaths(prevPaths => [...prevPaths, imagePath]);
   };
+
+  const addFromFacebook = resCallback => {
+    return LoginManager.logInWithPermissions(['public_profile']).then(
+      result => {
+        console.log(result, 'resultttt');
+        if (
+          result.declinedPermissions &&
+          result.declinedPermissions.includes('email')
+        ) {
+          resCallback({message: 'email required'});
+          console.log('Login cancelled');
+        }
+        if (result.isCancelled) {
+          console.log('cancelled');
+        } else {
+          const infoRequest = new GraphRequest(
+            '/me?filleds=email,name,picture,friend',
+            null,
+            resCallback,
+          );
+          new GraphRequestManager().addRequest(infoRequest).start();
+          console.log('Login success with permissions: ');
+        }
+      },
+      function (error) {
+        console.log('Login fail with error: ' + error);
+      },
+    );
+  };
+
+  const onFbLogin = async () => {
+    try {
+      await addFromFacebook(_responseCallback);
+    } catch (error) {
+      console.log('error', error);
+    }
+  };
+  const _responseCallback = async (error, result) => {
+    if (error) {
+      console.log(error, 'erroeeee');
+      return;
+    } else {
+      const userData = result;
+      console.log(userData, 'user Data');
+    }
+  };
+
   const handlePress = index => {
     switch (index) {
       case 0:
         chooseFile();
         break;
       case 1:
+        onFbLogin();
         console.log('Pressed: Add from Facebook');
         // Perform action for "Add from Facebook"
         break;

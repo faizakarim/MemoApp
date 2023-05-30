@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">MemoApp</string>
+    <string name="facebook_app_id">153970430992450</string>
+    <string name="fb_login_protocol_scheme">fb1234</string>
+    <string name="facebook_client_token">340feb27fa794c0a0d52c701541ad171bb985cb351219a643f9ddb06e1020665</string>
 </resources>
