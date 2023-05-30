@@ -15,6 +15,8 @@ import {
   LoginManager,
   GraphRequest,
   GraphRequestManager,
+  AccessToken,
+  ShareDialog,
 } from 'react-native-fbsdk';
 const HomeScreen = () => {
   const actionSheetRef = useRef();
@@ -45,49 +47,69 @@ const HomeScreen = () => {
     setImagePaths(prevPaths => [...prevPaths, imagePath]);
   };
 
-  const addFromFacebook = resCallback => {
-    return LoginManager.logInWithPermissions(['public_profile']).then(
-      result => {
-        console.log(result, 'resultttt');
-        if (
-          result.declinedPermissions &&
-          result.declinedPermissions.includes('email')
-        ) {
-          resCallback({message: 'email required'});
-          console.log('Login cancelled');
-        }
-        if (result.isCancelled) {
-          console.log('cancelled');
-        } else {
-          const infoRequest = new GraphRequest(
-            '/me?filleds=email,name,picture,friend',
-            null,
-            resCallback,
-          );
-          new GraphRequestManager().addRequest(infoRequest).start();
-          console.log('Login success with permissions: ');
-        }
-      },
-      function (error) {
-        console.log('Login fail with error: ' + error);
-      },
-    );
-  };
-
-  const onFbLogin = async () => {
+  const loginToFacebook = async () => {
     try {
-      await addFromFacebook(_responseCallback);
+      const result = await LoginManager.logInWithPermissions(['user_posts']);
+
+      if (result.isCancelled) {
+        console.log('Login cancelled');
+        return;
+      }
+
+      const accessTokenData = await AccessToken.getCurrentAccessToken();
+      const accessToken = accessTokenData.accessToken;
+
+      retrieveUserPosts(accessToken);
     } catch (error) {
-      console.log('error', error);
+      console.log('Facebook login error:', error);
     }
   };
-  const _responseCallback = async (error, result) => {
-    if (error) {
-      console.log(error, 'erroeeee');
-      return;
-    } else {
-      const userData = result;
-      console.log(userData, 'user Data');
+
+  const retrieveUserPosts = (accessToken: string) => {
+    const request = new GraphRequest(
+      '/me/posts',
+      {
+        accessToken: accessToken,
+        parameters: {
+          fields: {
+            string: 'id,message,created_time',
+          },
+        },
+      },
+      (error: any, result: any) => {
+        if (error) {
+          console.log('Error retrieving user posts:', error);
+          return;
+        }
+
+        console.log('User posts:', result);
+        // Process and display the posts as desired
+      },
+    );
+
+    new GraphRequestManager().addRequest(request).start();
+  };
+
+  const openFacebookAndSelectFacebookPhoto = async () => {
+    try {
+      const shareContent = {
+        contentType: 'photo',
+        contentUrl: 'https://www.facebook.com/photo.php?fbid=123456789', // Replace with the actual Facebook photo URL
+      };
+
+      const result = await ShareDialog.canShow(shareContent);
+
+      if (result) {
+        const shareResult = await ShareDialog.show(shareContent);
+        if (shareResult.isCancelled) {
+          console.log('Share cancelled');
+        } else {
+          console.log('Shared successfully:', shareResult);
+          // Handle the successful sharing of the Facebook photo
+        }
+      }
+    } catch (error) {
+      console.log('Share error:', error);
     }
   };
 
@@ -97,7 +119,7 @@ const HomeScreen = () => {
         chooseFile();
         break;
       case 1:
-        onFbLogin();
+        loginToFacebook();
         console.log('Pressed: Add from Facebook');
         // Perform action for "Add from Facebook"
         break;
