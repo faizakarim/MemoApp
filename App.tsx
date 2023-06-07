@@ -6,10 +6,10 @@
  */
 
 import React from 'react';
-import HomeScreen from './src/screens/HomeScreen';
+import {RootStack} from './src/Routes/RootStack';
 
 const App = () => {
-  return <HomeScreen />;
+  return <RootStack />;
 };
 
 export default App;

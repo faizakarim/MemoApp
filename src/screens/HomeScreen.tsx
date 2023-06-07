@@ -18,7 +18,9 @@ import {
   AccessToken,
   ShareDialog,
 } from 'react-native-fbsdk';
-const HomeScreen = () => {
+import {ImageDisplay} from '../components/ImageDisplay';
+import {ScrollView} from 'react-native-gesture-handler';
+export const HomeScreen = () => {
   const actionSheetRef = useRef();
   const [imagePaths, setImagePaths] = useState<string[]>([]);
   const Arr = [
@@ -90,28 +92,28 @@ const HomeScreen = () => {
     new GraphRequestManager().addRequest(request).start();
   };
 
-  const openFacebookAndSelectFacebookPhoto = async () => {
-    try {
-      const shareContent = {
-        contentType: 'photo',
-        contentUrl: 'https://www.facebook.com/photo.php?fbid=123456789', // Replace with the actual Facebook photo URL
-      };
+  // const openFacebookAndSelectFacebookPhoto = async () => {
+  //   try {
+  //     const shareContent = {
+  //       contentType: 'photo',
+  //       contentUrl: 'https://www.facebook.com/photo.php?fbid=123456789', // Replace with the actual Facebook photo URL
+  //     };
 
-      const result = await ShareDialog.canShow(shareContent);
+  //     const result = await ShareDialog.canShow(shareContent);
 
-      if (result) {
-        const shareResult = await ShareDialog.show(shareContent);
-        if (shareResult.isCancelled) {
-          console.log('Share cancelled');
-        } else {
-          console.log('Shared successfully:', shareResult);
-          // Handle the successful sharing of the Facebook photo
-        }
-      }
-    } catch (error) {
-      console.log('Share error:', error);
-    }
-  };
+  //     if (result) {
+  //       const shareResult = await ShareDialog.show(shareContent);
+  //       if (shareResult.isCancelled) {
+  //         console.log('Share cancelled');
+  //       } else {
+  //         console.log('Shared successfully:', shareResult);
+  //         // Handle the successful sharing of the Facebook photo
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.log('Share error:', error);
+  //   }
+  // };
 
   const handlePress = index => {
     switch (index) {
@@ -135,6 +137,7 @@ const HomeScreen = () => {
         break;
     }
   };
+  const createdDate = new Date();
 
   return (
     <View style={styles.container}>
@@ -167,6 +170,7 @@ const HomeScreen = () => {
           {/* <Icon name="camera-plus" size={25} /> */}
         </TouchableOpacity>
       </View>
+
       <BottomSheet ref={actionSheetRef} id={'1'}>
         {Arr.map((item, index) => (
           <TouchableOpacity
@@ -214,4 +218,3 @@ const styles = StyleSheet.create({
     margin: 5,
   },
 });
-export default HomeScreen;
